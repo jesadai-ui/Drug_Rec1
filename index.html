@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pond Chemical Calculator - สี่เหลี่ยม (Pro)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* ปรับพื้นหลังเป็นสีฟ้าอ่อนๆ สบายตา */
+        body { 
+            background: linear-gradient(135deg, #e1f5fe 0%, #81d4fa 100%); 
+            min-height: 100vh; 
+            padding: 40px 15px; 
+            font-family: 'Tahoma', sans-serif; 
+        }
+        
+        .container { max-width: 980px; } /* ขยายความกว้างขึ้นเล็กน้อยกันข้อความตกบรรทัด */
+        
+        /* เน้นชื่อโปรแกรมและผู้ออกแบบให้เด่นชัด (ปรับให้เข้ากับพื้นหลังสีอ่อน) */
+        .header-title { 
+            color: #01579b; /* สีน้ำเงินเข้ม */
+            font-size: 3.2rem; 
+            font-weight: 900; 
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.8); /* เงาสีขาวให้ตัวหนังสือลอยเด่น */
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+        .header-subtitle {
+            color: #e65100; /* สีส้มเข้มเด่นชัด */
+            font-size: 1.7rem;
+            font-weight: bold;
+            margin-bottom: 25px;
+            text-shadow: 1px 1px 3px rgba(255,255,255,0.8);
+        }
+
+        /* ป้าย Counter */
+        .counter-badge {
+            background-color: #ffca28;
+            color: #3e2723;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 10px 25px;
+            border-radius: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            display: inline-block;
+            margin-bottom: 35px;
+        }
+
+        .card { 
+            border-radius: 12px; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15); 
+            border: none; 
+            margin-bottom: 25px; 
+            background-color: #fcfcfc;
+        }
+        .card-header { 
+            background: #004d40; 
+            color: #ffffff; 
+            font-weight: bold; 
+            font-size: 1.5rem; 
+            padding: 15px 20px;
+            border-radius: 12px 12px 0 0 !important;
+        }
+
+        /* ปรับตัวอักษรของ Label และบังคับให้อยู่บรรทัดเดียวกัน (ไม่ตกแถว) */
+        label { 
+            font-weight: bold; 
+            color: #263238; 
+            font-size: 1.2rem; 
+            margin-bottom: 10px; 
+            white-space: nowrap; /* บังคับไม่ให้ข้อความตกบรรทัด */
+        }
+        
+        /* สีพื้นช่องกรอก เป็นสีครีมชมพูอ่อนๆ */
+        .form-control, .form-select { 
+            background-color: #fff0f4 !important; 
+            border: 2px solid #f48fb1; 
+            border-radius: 8px; 
+            padding: 12px; 
+            text-align: center; 
+            font-size: 1.4rem; 
+            font-weight: 700;
+            color: #111;
+        }
+        .form-control:focus, .form-select:focus { 
+            border-color: #d81b60; 
+            box-shadow: 0 0 0 0.25rem rgba(216, 27, 96, 0.25); 
+        }
+
+        /* สีพิเศษสำหรับข้อความระบุข้อมูล */
+        .text-danger-custom { color: #d32f2f !important; }
+        .text-primary-custom { color: #1976d2 !important; }
+        .text-success-custom { color: #2e7d32 !important; }
+        .text-warning-custom { color: #0277bd !important; }
+
+        /* สไตล์ปุ่มต่างๆ */
+        .btn-custom {
+            padding: 15px; 
+            font-weight: 900; 
+            font-size: 1.4rem; 
+            border: none; 
+            border-radius: 10px; 
+            transition: 0.3s; 
+            width: 100%;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+        .btn-calc { background: #ff6f00; }
+        .btn-calc:hover { background: #e65100; transform: translateY(-2px); color: white; }
+        
+        .btn-reset { background: #d32f2f; }
+        .btn-reset:hover { background: #b71c1c; transform: translateY(-2px); color: white; }
+
+        .btn-exit { background: #455a64; }
+        .btn-exit:hover { background: #263238; transform: translateY(-2px); color: white; }
+
+        /* สีช่องแสดงผลลัพธ์ เป็นสีครีมชมพูอ่อนๆ */
+        .result-box {
+            background-color: #fff0f4 !important; 
+            border-left: 8px solid #0288d1;
+            padding: 25px;
+            border-radius: 10px;
+            height: 100%;
+            box-shadow: inset 0 0 10px rgba(233,30,99,0.05);
+        }
+        .result-box.chem-box {
+            border-left-color: #ef6c00;
+        }
+        
+        .result-title { font-size: 1.4rem; color: #01579b; font-weight: bold; margin-bottom: 15px; }
+        .chem-box .result-title { color: #e65100; }
+        
+        .result-value { font-size: 3rem; font-weight: 900; color: #b71c1c; line-height: 1.2; }
+        .unit-text { font-size: 1.3rem; color: #455a64; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="text-center">
+        <!-- ชื่อโปรแกรมและชื่อผู้ออกแบบ -->
+        <h1 class="header-title">โปรแกรมคำนวณการใช้ยาและสารเคมี<br><span class="text-warning-custom">(สำหรับบ่อรูปทรงสี่เหลี่ยม)</span></h1>
+        <p class="header-subtitle">ออกแบบและพัฒนาโปรแกรมโดย รศ.ดร.เจษฎา อิสเหาะ</p>
+        
+        <!-- ส่วนแสดงจำนวนผู้ใช้งาน -->
+        <div class="counter-badge">
+            📊 จำนวนการเปิดใช้งาน: <span id="visitCounter" class="text-danger fs-4">89</span> ครั้ง
+        </div>
+    </div>
+
+    <!-- 1. ข้อมูลขนาดบ่อ -->
+    <div class="card">
+        <div class="card-header">1. ข้อมูลขนาดปากบ่อ (Pond Dimensions)</div>
+        <div class="card-body p-4">
+            <div class="row g-3 text-center">
+                <div class="col-6 col-md-3">
+                    <label>ความกว้างปากบ่อ (ม.)</label>
+                    <input type="number" id="p_width" class="form-control" value="20" min="0">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label>ความยาวปากบ่อ (ม.)</label>
+                    <input type="number" id="p_length" class="form-control" value="20" min="0">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="text-danger-custom">ความลึกบ่อทั้งหมด (ม.)</label>
+                    <input type="number" id="p_depth_total" class="form-control" value="2" min="0" step="0.1">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="text-primary-custom">ความลึกของน้ำจริง (ม.)</label>
+                    <input type="number" id="p_depth_water" class="form-control" value="1.5" min="0" step="0.1">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. ข้อมูลความชัน -->
+    <div class="card">
+        <div class="card-header">2. สัดส่วนความชันตลิ่ง (Slope Ratio)</div>
+        <div class="card-body p-4">
+            <div class="row g-4 align-items-center text-center">
+                <div class="col-5">
+                    <label>สัดส่วน Slope แนวดิ่ง (V)</label>
+                    <input type="number" id="s_vertical" class="form-control" value="1" min="0.1" step="0.1">
+                </div>
+                <div class="col-2 d-none d-md-block">
+                    <span style="font-size: 2.5rem; font-weight: bold; color: #90a4ae;">:</span>
+                </div>
+                <div class="col-12 col-md-5 mt-md-0 mt-3">
+                    <label>สัดส่วน Slope แนวนอน (H)</label>
+                    <input type="number" id="s_horizontal" class="form-control" value="1" min="0" step="0.1">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. ข้อมูลสารเคมี -->
+    <div class="card">
+        <div class="card-header">3. ข้อมูลตัวยาและสารเคมี (Chemical Dosage)</div>
+        <div class="card-body p-4">
+            <div class="row g-3 text-center">
+                <div class="col-12 col-md-4">
+                    <label>ความเข้มข้นยาหน้าซอง (%)</label>
+                    <input type="number" id="c_active" class="form-control text-success-custom" value="100" min="1" max="100">
+                </div>
+                <div class="col-6 col-md-4">
+                    <label>ความเข้มข้นที่ต้องการใช้</label>
+                    <input type="number" id="c_target" class="form-control text-primary-custom" value="25" min="0">
+                </div>
+                <div class="col-6 col-md-4">
+                    <label>หน่วยความเข้มข้น (Unit)</label>
+                    <select id="c_unit" class="form-select text-primary-custom">
+                        <option value="ppm">ppm (มิลลิกรัม/ลิตร)</option>
+                        <option value="percent">% (เปอร์เซ็นต์)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ปุ่ม Action -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <button class="btn-custom btn-calc" onclick="calculatePond()">⚙️ ประมวลผลการคำนวณ</button>
+        </div>
+        <div class="col-12 col-md-4">
+            <button class="btn-custom btn-reset" onclick="location.reload()">🗑 ล้างข้อมูล</button>
+        </div>
+        <div class="col-12 col-md-4">
+            <button class="btn-custom btn-exit" onclick="exitProgram()">🚪 ออกจากโปรแกรม</button>
+        </div>
+    </div>
+
+    <!-- 4. ผลลัพธ์ -->
+    <div class="card" id="resultCard" style="display: none; border: 3px solid #004d40;">
+        <div class="card-header" style="background: #004d40;">4. สรุปผลการประมวลผล (Calculation Results)</div>
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="result-box">
+                        <div class="result-title">💧 ปริมาตรน้ำในบ่อสุทธิ</div>
+                        <div class="result-value">
+                            <span id="res_volume">0.00</span> 
+                            <span class="unit-text">ลูกบาศก์เมตร</span>
+                        </div>
+                        <hr style="border-top: 2px dashed #90caf9;">
+                        <ul class="text-muted text-start" style="font-size: 1.2rem; margin-bottom: 0; padding-left: 20px;">
+                            <li>พื้นที่ก้นบ่อ: <span id="res_bot_dim" class="fw-bold text-dark">0 x 0</span> เมตร</li>
+                            <li>พื้นที่ผิวน้ำ: <span id="res_water_dim" class="fw-bold text-dark">0 x 0</span> เมตร</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="result-box chem-box">
+                        <div class="result-title">⚖️ ปริมาณยา/สารเคมีที่ต้องใช้จริง</div>
+                        <div class="result-value">
+                            <span id="res_chemical">0.00</span> 
+                            <span class="unit-text" id="res_chem_unit">กิโลกรัม</span>
+                        </div>
+                        <hr style="border-top: 2px dashed #ffcc80;">
+                        <ul class="text-muted text-start" style="font-size: 1.2rem; margin-bottom: 0; padding-left: 20px;">
+                            <li>ตัวยาเข้มข้น: <span id="res_active_pct" class="fw-bold text-dark">0</span>%</li>
+                            <li>เป้าหมายการใช้: <span id="res_target_dose" class="fw-bold text-dark">0</span> <span id="res_target_unit" class="fw-bold text-dark">ppm</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- ระบบ Counter การเข้าใช้งาน ---
+    window.onload = function() {
+        let currentCount = localStorage.getItem('pondCalcVisitCountSq');
+        if (!currentCount) {
+            currentCount = 89; 
+        } else {
+            currentCount = parseInt(currentCount) + 1;
+        }
+        localStorage.setItem('pondCalcVisitCountSq', currentCount);
+        document.getElementById('visitCounter').innerText = currentCount;
+    };
+
+    // --- ฟังก์ชันออกจากโปรแกรม ---
+    function exitProgram() {
+        if (confirm("คุณต้องการออกจากโปรแกรมใช่หรือไม่?")) {
+            window.close(); 
+            window.location.href = "about:blank"; 
+        }
+    }
+
+    // --- ระบบคำนวณบ่อ ---
+    function calculatePond() {
+        let W_top = parseFloat(document.getElementById('p_width').value) || 0;
+        let L_top = parseFloat(document.getElementById('p_length').value) || 0;
+        let D_pond = parseFloat(document.getElementById('p_depth_total').value) || 0;
+        let D_water = parseFloat(document.getElementById('p_depth_water').value) || 0;
+        
+        let Sv = parseFloat(document.getElementById('s_vertical').value) || 1;
+        let Sh = parseFloat(document.getElementById('s_horizontal').value) || 0;
+        
+        let activePct = parseFloat(document.getElementById('c_active').value) || 100;
+        let targetDose = parseFloat(document.getElementById('c_target').value) || 0;
+        let unit = document.getElementById('c_unit').value;
+
+        if (Sv === 0) { alert("สัดส่วนแนวดิ่งห้ามเป็น 0 เด็ดขาดครับ"); return; }
+        if (D_water > D_pond) { alert("ความลึกของน้ำ ต้องไม่มากกว่าความลึกของบ่อครับ"); return; }
+
+        let ratio = Sh / Sv;
+
+        // 1. หาขนาดก้นบ่อ
+        let L_bot = L_top - (2 * D_pond * ratio);
+        let W_bot = W_top - (2 * D_pond * ratio);
+        
+        if (L_bot < 0) L_bot = 0;
+        if (W_bot < 0) W_bot = 0;
+
+        // 2. หาขนาดผิวน้ำ
+        let L_water = L_bot + (2 * D_water * ratio);
+        let W_water = W_bot + (2 * D_water * ratio);
+
+        // 3. คำนวณปริมาตรน้ำ (สูตร Prismoidal)
+        let A_bot = L_bot * W_bot;
+        let A_water = L_water * W_water;
+        let L_mid = (L_bot + L_water) / 2;
+        let W_mid = (W_bot + W_water) / 2;
+        let A_mid = L_mid * W_mid;
+
+        let volume = (D_water / 6) * (A_water + A_bot + 4 * A_mid);
+
+        // 4. คำนวณปริมาณสารเคมี
+        let targetPPM = targetDose;
+        if (unit === "percent") {
+            targetPPM = targetDose * 10000;
+        }
+
+        let pureChemGrams = volume * targetPPM; 
+        let productGrams = pureChemGrams / (activePct / 100);
+
+        let displayChem = productGrams;
+        let displayUnit = "กรัม (g) / ซีซี";
+        if (productGrams >= 1000) {
+            displayChem = productGrams / 1000;
+            displayUnit = "กิโลกรัม (kg) / ลิตร";
+        }
+
+        // แสดงผล
+        document.getElementById('res_volume').innerText = volume.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('res_bot_dim').innerText = `${W_bot.toFixed(2)} x ${L_bot.toFixed(2)}`;
+        document.getElementById('res_water_dim').innerText = `${W_water.toFixed(2)} x ${L_water.toFixed(2)}`;
+
+        document.getElementById('res_chemical').innerText = displayChem.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('res_chem_unit').innerText = displayUnit;
+        
+        document.getElementById('res_active_pct').innerText = activePct;
+        document.getElementById('res_target_dose').innerText = targetDose;
+        document.getElementById('res_target_unit').innerText = (unit === 'percent') ? "%" : "ppm";
+
+        document.getElementById('resultCard').style.display = 'block';
+        window.scrollTo({ top: document.getElementById('resultCard').offsetTop - 20, behavior: 'smooth' });
+    }
+</script>
+</body>
+</html>
